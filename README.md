@@ -22,8 +22,14 @@ And use it on your controllers.
       default_scope where(:deleted_at => nil)
     end
 
-If you want to get the deleted entries:
+If you want to get the `deleted` entries:
 
-    Entry.deleted
+    >> Entry.deleted
+    => [...]
+
+If you want to `restore` a deleted entry:
+
+    >> Entry.deleted.first.restore
+    => [...]
 
 Copyright (c) 2011 Francesc Esplugas Marti, released under the MIT license

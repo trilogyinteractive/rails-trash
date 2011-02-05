@@ -38,10 +38,17 @@ class SimplifiedPermalinkTest < Test::Unit::TestCase
     teardown_db
   end
 
-  def test_basic
+  def test_deleted
     @entry.destroy
     assert_equal 0, Entry.count
     assert_equal 1, Entry.deleted.count
+  end
+
+  def test_restore
+    @entry.destroy
+    Entry.deleted.first.restore
+    assert_equal 0, Entry.deleted.count
+    assert_equal 1, Entry.count
   end
 
 end

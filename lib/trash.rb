@@ -30,6 +30,10 @@ module Trash
         self.update_attribute(:deleted_at, Time.now.utc)
       end
 
+      def restore
+        self.update_attribute(:deleted_at, nil)
+      end
+
     end
 
   end
