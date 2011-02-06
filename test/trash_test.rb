@@ -24,7 +24,7 @@ end
 
 class Entry < ActiveRecord::Base
   default_scope where(:deleted_at => nil)
-  enable_trash
+  has_trash
 end
 
 class SimplifiedPermalinkTest < Test::Unit::TestCase

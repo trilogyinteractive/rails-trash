@@ -8,10 +8,10 @@ module Trash
 
     ##
     #   class Entry < ActiveRecord::Base
-    #     enable_trash
+    #     has_trash
     #   end
     #
-    def enable_trash
+    def has_trash
       extend ClassMethodsMixin
       include InstanceMethods
     end

@@ -17,7 +17,7 @@ Add to your posts the `deleted_at` attribute:
 And use it on your controllers.
 
     class Post < ActiveRecord::Base
-      enable_trash
+      has_trash
 
       default_scope where(:deleted_at => nil)
     end
