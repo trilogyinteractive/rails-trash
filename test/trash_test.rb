@@ -51,4 +51,12 @@ class SimplifiedPermalinkTest < Test::Unit::TestCase
     assert_equal 1, Entry.count
   end
 
+  def test_wipe
+    @entry.destroy
+    assert_equal 1, Entry.deleted.count
+    entry = Entry.deleted.first
+    entry.disable_trash { entry.destroy }
+    assert_equal 0, Entry.deleted.count
+  end
+
 end

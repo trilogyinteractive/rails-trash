@@ -14,6 +14,7 @@ module Trash
     def has_trash
       extend ClassMethodsMixin
       include InstanceMethods
+      alias_method_chain :destroy, :trash
     end
 
     module ClassMethodsMixin
@@ -26,12 +27,23 @@ module Trash
 
     module InstanceMethods
 
-      def destroy
+      def destroy_with_trash
+        return destroy_without_trash if @trash_is_disabled
         self.update_attribute(:deleted_at, Time.now.utc)
       end
 
       def restore
         self.update_attribute(:deleted_at, nil)
+      end
+
+      def disable_trash
+        save_val = @trash_is_disabled
+        begin
+          @trash_is_disabled = true
+          yield if block_given?
+        ensure
+          @trash_is_disabled = save_val
+        end
       end
 
     end
