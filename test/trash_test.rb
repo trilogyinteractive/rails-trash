@@ -27,7 +27,7 @@ class Entry < ActiveRecord::Base
   has_trash
 end
 
-class SimplifiedPermalinkTest < Test::Unit::TestCase
+class TrashTest < Test::Unit::TestCase
 
   def setup
     setup_db
