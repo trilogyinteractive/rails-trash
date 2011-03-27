@@ -20,7 +20,8 @@ module Trash
     module ClassMethodsMixin
 
       def deleted
-        unscoped.where("#{self.table_name}.deleted_at IS NOT NULL")
+        deleted_at = Arel::Table.new(self.table_name)[:deleted_at]
+        unscoped.where(deleted_at.not_eq(nil))
       end
 
     end
