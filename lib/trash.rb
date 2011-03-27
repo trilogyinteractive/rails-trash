@@ -9,6 +9,7 @@ module Trash
     ##
     #   class Entry < ActiveRecord::Base
     #     has_trash
+    #     default_scope where(:deleted_at => nil)
     #   end
     #
     def has_trash
