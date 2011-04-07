@@ -2,6 +2,7 @@ require 'test/unit'
 require 'rubygems'
 require 'active_record'
 require 'trash'
+require 'factory_girl'
 
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
 
@@ -22,16 +23,32 @@ def teardown_db
   end
 end
 
+##
+# Model definitions
+#
+
 class Entry < ActiveRecord::Base
   default_scope where(:deleted_at => nil)
   has_trash
 end
 
+##
+# Factories
+#
+
+Factory.define :entry do |f|
+  f.sequence(:title) { |n| "Entry##{n}" }
+end
+
+##
+# And finally the test itself.
+#
+
 class TrashTest < Test::Unit::TestCase
 
   def setup
     setup_db
-    @entry = Entry.create :title => "Hello World"
+    @entry = Factory(:entry)
   end
 
   def teardown
