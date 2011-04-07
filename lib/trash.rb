@@ -31,7 +31,13 @@ module Trash
 
       def destroy_with_trash
         return destroy_without_trash if @trash_is_disabled
-        self.update_attribute(:deleted_at, Time.now.utc)
+        deleted_at = Time.now.utc
+        self.update_attribute(:deleted_at, deleted_at)
+        self.class.reflect_on_all_associations(:has_many).each do |reflection|
+          if reflection.options[:dependent].eql?(:destroy)
+            self.send(reflection.name).update_all(:deleted_at => deleted_at)
+          end
+        end
       end
 
       def restore

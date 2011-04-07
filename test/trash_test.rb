@@ -13,6 +13,13 @@ def setup_db
         t.string :title
         t.datetime :deleted_at
       end
+
+      create_table :comments do |t|
+        t.string :email
+        t.text :body
+        t.datetime :deleted_at
+        t.integer :entry_id
+      end
     end
   end
 end
@@ -30,6 +37,13 @@ end
 class Entry < ActiveRecord::Base
   default_scope where(:deleted_at => nil)
   has_trash
+  has_many :comments, :dependent => :destroy
+end
+
+class Comment < ActiveRecord::Base
+  default_scope where(:deleted_at => nil)
+  has_trash
+  belongs_to :entry
 end
 
 ##
@@ -38,6 +52,11 @@ end
 
 Factory.define :entry do |f|
   f.sequence(:title) { |n| "Entry##{n}" }
+end
+
+Factory.define :comment do |f|
+  f.sequence(:email) { |n| "email+#{n}@example.com" }
+  f.association :entry
 end
 
 ##
@@ -49,6 +68,7 @@ class TrashTest < Test::Unit::TestCase
   def setup
     setup_db
     @entry = Factory(:entry)
+    @comment = Factory(:comment, :entry => @entry)
   end
 
   def teardown
@@ -74,6 +94,12 @@ class TrashTest < Test::Unit::TestCase
     entry = Entry.deleted.first
     entry.disable_trash { entry.destroy }
     assert_equal 0, Entry.deleted.count
+  end
+
+  def test_destroy_in_cascade_still_works
+    assert Comment.count.eql?(1)
+    @entry.destroy
+    assert Comment.count.eql?(0)
   end
 
 end
