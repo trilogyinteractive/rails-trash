@@ -77,23 +77,23 @@ class TrashTest < Test::Unit::TestCase
 
   def test_deleted
     @entry.destroy
-    assert_equal 0, Entry.count
-    assert_equal 1, Entry.deleted.count
+    assert Entry.count.eql?(0)
+    assert Entry.deleted.count.eql?(1)
   end
 
   def test_restore
     @entry.destroy
     Entry.deleted.first.restore
-    assert_equal 0, Entry.deleted.count
-    assert_equal 1, Entry.count
+    assert Entry.deleted.count.eql?(0)
+    assert Entry.count.eql?(1)
   end
 
   def test_wipe
     @entry.destroy
-    assert_equal 1, Entry.deleted.count
+    assert Entry.deleted.count.eql?(1)
     entry = Entry.deleted.first
     entry.disable_trash { entry.destroy }
-    assert_equal 0, Entry.deleted.count
+    assert Entry.deleted.count.eql?(0)
   end
 
   def test_destroy_in_cascade_still_works
