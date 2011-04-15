@@ -10,11 +10,11 @@ Add it to your `Gemfile`:
 
 ## Usage
 
-Add to your posts the `deleted_at` attribute:
+Add to your entries the `deleted_at` attribute:
 
     add_column :entries, :deleted_at, :timestamp
 
-And use it on your controllers.
+And use it on your models.
 
     class Post < ActiveRecord::Base
       has_trash
