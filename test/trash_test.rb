@@ -102,4 +102,9 @@ class TrashTest < Test::Unit::TestCase
     assert Comment.count.eql?(0)
   end
 
+  def test_trashed
+    @entry.destroy
+    assert @entry.trashed?
+  end
+
 end

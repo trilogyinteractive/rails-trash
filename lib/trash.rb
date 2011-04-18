@@ -54,6 +54,10 @@ module Trash
         end
       end
 
+      def trashed?
+       deleted_at.present?
+      end
+
     end
 
   end
