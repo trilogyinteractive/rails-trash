@@ -1,4 +1,4 @@
-# Trash
+# Rails Trash
 
 Simple trash for your models setting the `delete_at` to `Time.now.utc`.
 
@@ -6,7 +6,8 @@ Simple trash for your models setting the `delete_at` to `Time.now.utc`.
 
 Add it to your `Gemfile`:
 
-    gem 'trash', :git => 'https://github.com/fesplugas/rails-trash.git'
+    gem 'rails-trash'
+    # gem 'rails-trash', :git => 'https://github.com/fesplugas/rails-trash.git'
 
 ## Usage
 
