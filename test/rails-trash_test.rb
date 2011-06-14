@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'rubygems'
 require 'active_record'
-require 'trash'
+require 'rails-trash'
 require 'factory_girl'
 
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
@@ -63,7 +63,7 @@ end
 # And finally the test itself.
 #
 
-class TrashTest < Test::Unit::TestCase
+class Rails::TrashTest < Test::Unit::TestCase
 
   def setup
     setup_db
