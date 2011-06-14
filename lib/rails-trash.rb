@@ -31,7 +31,7 @@ module Rails
         end
 
         def restore(id)
-          deleted.find(id).restore
+          find_in_trash(id).restore
         end
 
       end
