@@ -64,7 +64,7 @@ module Rails
         end
 
         def trashed?
-         deleted_at.present?
+          deleted_at.present?
         end
 
       end
