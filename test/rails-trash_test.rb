@@ -1,3 +1,14 @@
+module Rails
+  module VERSION
+    MAJOR = 3
+    MINOR = 1
+    TINY  = 0
+    PRE   = "rc1"
+
+    STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
+  end
+end
+
 require 'test/unit'
 require 'rubygems'
 require 'active_record'
@@ -84,6 +95,13 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_restore
     @entry.destroy
     Entry.deleted.first.restore
+    assert Entry.deleted.count.eql?(0)
+    assert Entry.count.eql?(1)
+  end
+
+  def test_restore_class_method
+    @entry.destroy
+    Entry.restore(@entry.id)
     assert Entry.deleted.count.eql?(0)
     assert Entry.count.eql?(1)
   end
