@@ -26,6 +26,10 @@ module Rails
           unscoped.where(deleted_at.not_eq(nil))
         end
 
+        def find_in_trash(id)
+          deleted.find(id)
+        end
+
         def restore(id)
           deleted.find(id).restore
         end

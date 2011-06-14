@@ -106,6 +106,12 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Entry.count.eql?(1)
   end
 
+  def test_find_in_trash
+    @entry.destroy
+    entry = Entry.find_in_trash(@entry.id)
+    assert_equal entry.id, @entry.id
+  end
+
   def test_wipe
     @entry.destroy
     assert Entry.deleted.count.eql?(1)
