@@ -23,14 +23,16 @@ And use it on your models.
       default_scope where(:deleted_at => nil)
     end
 
-If you want to get the `deleted` entries:
+Get all deleted entries:
 
-    >> Entry.deleted
-    => [...]
+    Entry.deleted
 
-If you want to `restore` a deleted entry:
+Restore an element from trash:
 
-    >> Entry.deleted.first.restore
-    => [...]
+    Entry.restore(1)
+
+Find an element in the trash:
+
+    Entry.find_in_trash(1)
 
 Copyright (c) 2011 Francesc Esplugas Marti, released under the MIT license
