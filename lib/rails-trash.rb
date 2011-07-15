@@ -21,9 +21,11 @@ module Rails
 
       module ClassMethodsMixin
 
-        def deleted
+        def deleted(field = nil, value = nil)
           deleted_at = Arel::Table.new(self.table_name)[:deleted_at]
-          unscoped.where(deleted_at.not_eq(nil))
+          data = unscoped
+          data = data.where(field => value) if field && value
+          data.where(deleted_at.not_eq(nil))
         end
 
         def find_in_trash(id)

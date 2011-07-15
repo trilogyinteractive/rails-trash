@@ -20,9 +20,14 @@ ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":me
 def setup_db
   silence_stream(STDOUT) do
     ActiveRecord::Schema.define(:version => 1) do
+      create_table :sites do |t|
+        t.string :name
+      end
+
       create_table :entries do |t|
         t.string :title
         t.datetime :deleted_at
+        t.integer :site_id
       end
 
       create_table :comments do |t|
@@ -45,9 +50,14 @@ end
 # Model definitions
 #
 
+class Site < ActiveRecord::Base
+  has_many :entries
+end
+
 class Entry < ActiveRecord::Base
   default_scope where(:deleted_at => nil)
   has_trash
+  belongs_to :site
   has_many :comments, :dependent => :destroy
 end
 
@@ -61,8 +71,13 @@ end
 # Factories
 #
 
+Factory.define :site do |f|
+  f.sequence(:name) { |n| "Site##{n}" }
+end
+
 Factory.define :entry do |f|
   f.sequence(:title) { |n| "Entry##{n}" }
+  f.association :site
 end
 
 Factory.define :comment do |f|
@@ -129,6 +144,15 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_trashed
     @entry.destroy
     assert @entry.trashed?
+  end
+
+  def test_trashed_with_a_scope
+    entry = Factory(:entry)
+    entry.destroy
+    @entry.destroy
+
+    assert_equal [@entry, entry], @entry.site.entries.deleted
+    assert_equal [@entry], @entry.site.entries.deleted('site_id', @entry.site.id)
   end
 
 end
