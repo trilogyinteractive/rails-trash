@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'rails-trash'
-  s.version = '1.1.2'
+  s.version = '2.0.0'
   s.author = 'Francesc Esplugas'
   s.email = 'contact@francescesplugas.com'
   s.homepage = 'https://github.com/fesplugas/rails-trash'
