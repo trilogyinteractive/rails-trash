@@ -99,6 +99,10 @@ class Rails::TrashTest < Test::Unit::TestCase
     teardown_db
   end
 
+  def test_site_is_not_cluttered_with_has_trash_methods
+    assert !Site.respond_to?(:deleted)
+  end
+
   def test_deleted
     @entry.destroy
     assert Entry.count.eql?(0)
