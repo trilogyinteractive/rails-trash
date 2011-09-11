@@ -55,14 +55,12 @@ class Site < ActiveRecord::Base
 end
 
 class Entry < ActiveRecord::Base
-  default_scope where(:deleted_at => nil)
   has_trash
   belongs_to :site
   has_many :comments, :dependent => :destroy
 end
 
 class Comment < ActiveRecord::Base
-  default_scope where(:deleted_at => nil)
   has_trash
   belongs_to :entry
 end

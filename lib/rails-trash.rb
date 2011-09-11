@@ -10,7 +10,6 @@ module Rails
       ##
       #   class Entry < ActiveRecord::Base
       #     has_trash
-      #     default_scope where(:deleted_at => nil)
       #   end
       #
       def has_trash
@@ -39,6 +38,12 @@ module Rails
       end
 
       module InstanceMethods
+
+        def self.included(base)
+          base.class_eval do
+            default_scope where(:deleted_at => nil) if arel_table[:deleted_at]
+          end
+        end
 
         def destroy_with_trash
           return destroy_without_trash if @trash_is_disabled

@@ -19,8 +19,6 @@ And use it on your models.
 
     class Post < ActiveRecord::Base
       has_trash
-
-      default_scope where(:deleted_at => nil)
     end
 
 Get all deleted entries:
