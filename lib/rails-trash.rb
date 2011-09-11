@@ -41,7 +41,7 @@ module Rails
 
       def self.included(base)
         base.class_eval do
-          default_scope where(:deleted_at => nil) if arel_table[:deleted_at]
+          default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
         end
       end
 
