@@ -1,6 +1,6 @@
 # Rails Trash
 
-Simple trash for your models setting the `delete_at` to `Time.now.utc`.
+Simple trash for your models setting the `deleted_at` to `Time.now.utc`.
 
 ## Installing
 
