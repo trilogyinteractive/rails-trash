@@ -55,13 +55,14 @@ class Site < ActiveRecord::Base
 end
 
 class Entry < ActiveRecord::Base
-  has_trash
+  include Rails::Trash
+
   belongs_to :site
   has_many :comments, :dependent => :destroy
 end
 
 class Comment < ActiveRecord::Base
-  has_trash
+  include Rails::Trash
   belongs_to :entry
 end
 
@@ -69,18 +70,20 @@ end
 # Factories
 #
 
-Factory.define :site do |f|
-  f.sequence(:name) { |n| "Site##{n}" }
-end
+FactoryGirl.define do
+  factory :site do
+    sequence(:name) { |n| "Site##{n}" }
+  end
 
-Factory.define :entry do |f|
-  f.sequence(:title) { |n| "Entry##{n}" }
-  f.association :site
-end
+  factory :entry do
+    sequence(:title) { |n| "Entry##{n}" }
+    association :site
+  end
 
-Factory.define :comment do |f|
-  f.sequence(:email) { |n| "email+#{n}@example.com" }
-  f.association :entry
+  factory :comment do
+    sequence(:email) { |n| "email+#{n}@example.com" }
+    association :entry
+  end
 end
 
 ##
@@ -91,8 +94,8 @@ class Rails::TrashTest < Test::Unit::TestCase
 
   def setup
     setup_db
-    @entry = Factory(:entry)
-    @comment = Factory(:comment, :entry => @entry)
+    @entry = FactoryGirl.create(:entry)
+    @comment = FactoryGirl.create(:comment, :entry => @entry)
   end
 
   def teardown
@@ -149,7 +152,7 @@ class Rails::TrashTest < Test::Unit::TestCase
   end
 
   def test_trashed_with_a_scope
-    entry = Factory(:entry)
+    entry = FactoryGirl.create(:entry)
     entry.destroy
     @entry.destroy
 

@@ -18,7 +18,8 @@ Add to your entries the `deleted_at` attribute:
 And use it on your models.
 
     class Post < ActiveRecord::Base
-      has_trash
+      include Rails::Trash
+      default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
     end
 
 Get all deleted entries:
@@ -33,4 +34,4 @@ Find an element in the trash:
 
     Entry.find_in_trash(1)
 
-Copyright (c) 2011 Francesc Esplugas Marti, released under the MIT license
+Copyright (c) 2011-2013 Francesc Esplugas Marti, released under the MIT license
