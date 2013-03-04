@@ -56,6 +56,7 @@ end
 
 class Entry < ActiveRecord::Base
   include Rails::Trash
+  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
 
   belongs_to :site
   has_many :comments, :dependent => :destroy
@@ -63,6 +64,7 @@ end
 
 class Comment < ActiveRecord::Base
   include Rails::Trash
+  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
   belongs_to :entry
 end
 
@@ -108,8 +110,8 @@ class Rails::TrashTest < Test::Unit::TestCase
 
   def test_deleted
     @entry.destroy
-    assert Entry.count.eql?(0)
-    assert Entry.deleted.count.eql?(1)
+    assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
+    assert Entry.deleted.count.eql?(1), "Expected 1 found #{Entry.count}."
   end
 
   def test_restore
@@ -143,7 +145,7 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_destroy_in_cascade_still_works
     assert Comment.count.eql?(1)
     @entry.destroy
-    assert Comment.count.eql?(0)
+    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
   end
 
   def test_trashed
