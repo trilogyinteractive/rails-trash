@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/fesplugas/rails-trash'
   s.summary = 'Trash'
 
-  s.add_dependency('rails', '~> 3.2.12')
+  s.add_dependency('rails', '>= 3.2.12')
 
   s.add_development_dependency("factory_girl", "~> 4.2.0")
   s.add_development_dependency("sqlite3", "~> 1.3.7")
