@@ -6,32 +6,56 @@ Simple trash for your models setting the `deleted_at` to `Time.now.utc`.
 
 Add it to your `Gemfile`:
 
-    gem 'rails-trash'
-    # gem 'rails-trash', :git => 'https://github.com/fesplugas/rails-trash.git'
+    gem 'rails-trash', :github => 'trilogyinteractive/rails-trash'
 
 ## Usage
 
-Add to your entries the `deleted_at` attribute:
+Create a migration to add a `deleted_at` column for all trashable models:
 
-    add_column :entries, :deleted_at, :timestamp
+    add_column :post, :deleted_at, :timestamp
+    add_column :comments, :deleted_at, :timestamp
 
-And use it on your models.
+Add the `has_trash` module and add a `default scope` to each trashable model:
 
     class Post < ActiveRecord::Base
-      include Rails::Trash
+      has_trash
       default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
     end
 
-Get all deleted entries:
+Trash a record. This will also trash all `:dependent => :destroy` associations.
 
-    Entry.deleted
+    Post.find(1).destroy
 
-Restore an element from trash:
+You can also call #trash in place of #destroy to make your code more readable.
 
-    Entry.restore(1)
+    Post.find(1).trash
 
-Find an element in the trash:
+Restore a record from trash. This will also restore all `:dependent => :destroy` associations.
 
-    Entry.find_in_trash(1)
+    Post.restore(1)
+
+Get all active records:
+
+    Post.active
+
+Get all deleted records:
+
+    Post.deleted
+
+Find a record in the trash:
+
+    Post.find_in_trash(1)
+
+Test if a record is trashed:
+
+    Post.find(1).trashed?
+
+You can disable the trash for a model:
+
+    Post.disabled_trash
+
+You can also enable the trash for a model:
+
+    Post.enable_trash
 
 Copyright (c) 2011-2013 Francesc Esplugas Marti, released under the MIT license
