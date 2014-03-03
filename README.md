@@ -26,10 +26,6 @@ Trash a record. This will also trash all `:dependent => :destroy` associations.
 
     Post.find(1).destroy
 
-You can also call #trash in place of #destroy to make your code more readable.
-
-    Post.find(1).trash
-
 Restore a record from trash. This will also restore all `:dependent => :destroy` associations.
 
     Post.restore(1)
@@ -49,13 +45,5 @@ Find a record in the trash:
 Test if a record is trashed:
 
     Post.find(1).trashed?
-
-You can disable the trash for a model:
-
-    Post.disabled_trash
-
-You can also enable the trash for a model:
-
-    Post.enable_trash
 
 Copyright (c) 2011-2013 Francesc Esplugas Marti, released under the MIT license

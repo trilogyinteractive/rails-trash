@@ -147,14 +147,6 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert_equal entry.id, @entry.id
   end
 
-  def test_wipe
-    @entry.destroy
-    assert Entry.deleted.count.eql?(1)
-    entry = Entry.deleted.first
-    entry.disable_trash { entry.destroy }
-    assert Entry.deleted.count.eql?(0)
-  end
-
   def test_destroy_in_cascade_still_works
     assert Comment.count.eql?(1)
     @entry.destroy
@@ -165,5 +157,4 @@ class Rails::TrashTest < Test::Unit::TestCase
     @entry.destroy
     assert @entry.trashed?
   end
-
 end
