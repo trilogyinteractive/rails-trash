@@ -55,7 +55,7 @@ class Site < ActiveRecord::Base
 end
 
 class Entry < ActiveRecord::Base
-  include Rails::Trash
+  has_trash
   default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
 
   belongs_to :site
@@ -63,7 +63,7 @@ class Entry < ActiveRecord::Base
 end
 
 class Comment < ActiveRecord::Base
-  include Rails::Trash
+  has_trash
   default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
   belongs_to :entry
 end
@@ -114,11 +114,24 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Entry.deleted.count.eql?(1), "Expected 1 found #{Entry.count}."
   end
 
+  def test_deleted_associations
+    @entry.destroy
+    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.deleted.count.eql?(1), "Expected 1 found #{Comment.count}."
+  end
+
   def test_restore
     @entry.destroy
     Entry.deleted.first.restore
     assert Entry.deleted.count.eql?(0)
     assert Entry.count.eql?(1)
+  end
+
+  def test_restore_associations
+    @entry.destroy
+    Entry.deleted.first.restore
+    assert Comment.count.eql?(1), "Expected 1 found #{Comment.count}."
+    assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.count}."
   end
 
   def test_restore_class_method
@@ -151,15 +164,6 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_trashed
     @entry.destroy
     assert @entry.trashed?
-  end
-
-  def test_trashed_with_a_scope
-    entry = FactoryGirl.create(:entry)
-    entry.destroy
-    @entry.destroy
-
-    assert_equal [@entry, entry], @entry.site.entries.deleted
-    assert_equal [@entry], @entry.site.entries.deleted('site_id', @entry.site.id)
   end
 
 end
