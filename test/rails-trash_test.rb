@@ -134,6 +134,13 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.count}."
   end
 
+  def test_restore_without_associations
+    @entry2 = FactoryGirl.create(:entry)
+    @entry2.destroy
+    Entry.deleted.first.restore
+    assert @entry2.comments.count.eql?(0), "Expected 0 found #{@entry2.comments.count}."
+  end
+
   def test_restore_class_method
     @entry.destroy
     Entry.restore(@entry.id)
