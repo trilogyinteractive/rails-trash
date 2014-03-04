@@ -36,13 +36,12 @@ module Rails
       module InstanceMethodsMixin
 
         def destroy
-          deleted_at = Time.now.utc
-          self.update_attribute(:deleted_at, deleted_at)
-          trash_associations(deleted_at)
+          self.update_attribute(:deleted_at, Time.now.utc) if self.deleted_at.nil?
+          trash_associations
         end
 
         def restore
-          self.update_attribute(:deleted_at, nil)
+          self.update_attribute(:deleted_at, nil) unless self.deleted_at.nil?
           restore_associations
         end
 
@@ -52,10 +51,12 @@ module Rails
 
         private
 
-        def trash_associations(deleted_at)
+        def trash_associations
           self.class.reflect_on_all_associations(:has_many).each do |reflection|
             if reflection.options[:dependent] == :destroy
-              self.send(reflection.name).update_all(:deleted_at => deleted_at)
+              self.send(reflection.name).each do |association|
+                association.destroy
+              end
             end
           end
         end
@@ -63,8 +64,13 @@ module Rails
         def restore_associations
           self.class.reflect_on_all_associations(:has_many).each do |reflection|
             if reflection.options[:dependent] == :destroy
-              associations = self.send(reflection.name)
-              associations.deleted.update_all(:deleted_at => nil) if associations.count > 0
+              begin
+                self.send(reflection.name).deleted.each do |association|
+                  association.restore if association.trashed?
+                end
+              rescue
+                # There are no associations to delete
+              end
             end
           end
         end
