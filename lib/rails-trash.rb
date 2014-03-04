@@ -64,7 +64,7 @@ module Rails
           self.class.reflect_on_all_associations(:has_many).each do |reflection|
             if reflection.options[:dependent] == :destroy
               associations = self.send(reflection.name)
-              associations.deleted.update_all(:deleted_at => nil) if associations.deleted.count > 0
+              associations.deleted.update_all(:deleted_at => nil) if associations.count > 0
             end
           end
         end
