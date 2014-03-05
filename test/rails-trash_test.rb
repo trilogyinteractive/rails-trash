@@ -164,4 +164,19 @@ class Rails::TrashTest < Test::Unit::TestCase
     @entry.destroy
     assert @entry.trashed?
   end
+
+  def test_disable_trash
+    @entry.disable_trash
+    @entry.destroy
+    assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
+    assert Entry.deleted.count.eql?(0), "Expected 0 found #{Entry.deleted.count}."
+  end
+
+  def test_enable_trash
+    @entry.disable_trash
+    @entry.enable_trash
+    @entry.destroy
+    assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
+    assert Entry.deleted.count.eql?(1), "Expected 1 found #{Entry.deleted.count}."
+  end
 end

@@ -36,8 +36,12 @@ module Rails
       module InstanceMethodsMixin
 
         def destroy
-          self.update_attribute(:deleted_at, Time.now.utc) if self.deleted_at.nil?
-          trash_associations
+          unless @trash_disabled
+            self.update_attribute(:deleted_at, Time.now.utc) if self.deleted_at.nil?
+            trash_associations
+          else
+            super
+          end
         end
 
         def restore
@@ -49,29 +53,39 @@ module Rails
           deleted_at.present?
         end
 
+        def disable_trash
+          @trash_disabled ||= true
+        end
+
+        def enable_trash
+          @trash_disabled = false
+        end
+
         private
 
         def trash_associations
-          self.class.reflect_on_all_associations(:has_many).each do |reflection|
-            if reflection.options[:dependent] == :destroy
-              self.send(reflection.name).each do |association|
-                association.destroy
-              end
+          dependent_destroy_associations.each do |reflection|
+            self.send(reflection.name).each do |association|
+              association.destroy
             end
           end
         end
 
         def restore_associations
-          self.class.reflect_on_all_associations(:has_many).each do |reflection|
-            if reflection.options[:dependent] == :destroy
-              begin
-                self.send(reflection.name).deleted.each do |association|
-                  association.restore if association.trashed?
-                end
-              rescue
-                # There are no associations to delete
+          dependent_destroy_associations.each do |reflection|
+            begin
+              self.send(reflection.name).deleted.each do |association|
+                association.restore if association.trashed?
               end
+            rescue
+              # There are no associations to delete
             end
+          end
+        end
+
+        def dependent_destroy_associations
+          self.class.reflect_on_all_associations(:has_many).select do |reflection|
+            reflection.options[:dependent] == :destroy
           end
         end
 
