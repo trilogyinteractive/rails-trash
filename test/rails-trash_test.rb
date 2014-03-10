@@ -167,9 +167,18 @@ class Rails::TrashTest < Test::Unit::TestCase
 
   def test_disable_trash
     @entry.disable_trash
+    assert @entry.trash_disabled == true, "Expected true found #{@entry.trash_disabled}"
+
     @entry.destroy
     assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
     assert Entry.deleted.count.eql?(0), "Expected 0 found #{Entry.deleted.count}."
+  end
+
+  def test_disable_trash_associations
+    @entry.disable_trash
+    @entry.destroy
+    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.deleted.count}."
   end
 
   def test_enable_trash
@@ -178,5 +187,20 @@ class Rails::TrashTest < Test::Unit::TestCase
     @entry.destroy
     assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
     assert Entry.deleted.count.eql?(1), "Expected 1 found #{Entry.deleted.count}."
+  end
+
+  def test_enable_trash_associations
+    @entry.disable_trash
+    @entry.enable_trash
+    @entry.destroy
+    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.deleted.count.eql?(1), "Expected 1 found #{Comment.deleted.count}."
+  end
+
+  def test_delete_associations
+    @entry.disable_trash
+    @entry.destroy
+    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.deleted.count}."
   end
 end

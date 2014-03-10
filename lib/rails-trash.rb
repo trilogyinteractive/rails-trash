@@ -9,6 +9,7 @@ module Rails
     module ClassMethods
       
       def has_trash
+        attr_accessor :trash_disabled
         extend ClassMethodsMixin
         include InstanceMethodsMixin
       end
@@ -54,11 +55,29 @@ module Rails
         end
 
         def disable_trash
-          @trash_disabled ||= true
+          @trash_disabled = true
+          disable_trash_for_associations
+        end
+
+        def disable_trash_for_associations
+          dependent_destroy_associations.each do |reflection|
+            self.send(reflection.name).each do |association|
+              association.disable_trash
+            end
+          end
         end
 
         def enable_trash
           @trash_disabled = false
+          enable_trash_for_associations
+        end
+
+        def enable_trash_for_associations
+          dependent_destroy_associations.each do |reflection|
+            self.send(reflection.name).each do |association|
+              association.enable_trash
+            end
+          end
         end
 
         private
@@ -66,6 +85,7 @@ module Rails
         def trash_associations
           dependent_destroy_associations.each do |reflection|
             self.send(reflection.name).each do |association|
+              # puts association.inspect
               association.destroy
             end
           end
@@ -87,6 +107,10 @@ module Rails
           self.class.reflect_on_all_associations(:has_many).select do |reflection|
             reflection.options[:dependent] == :destroy
           end
+        end
+
+        def belongs_to_associations
+          self.class.reflect_on_all_associations(:belongs_to)
         end
 
       end
