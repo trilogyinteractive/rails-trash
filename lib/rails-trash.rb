@@ -42,11 +42,14 @@ module Rails
           else
             super
           end
+
+          self
         end
 
         def restore
           self.update_attribute(:deleted_at, nil) unless self.deleted_at.nil?
           restore_associations
+          self
         end
 
         def trashed?
