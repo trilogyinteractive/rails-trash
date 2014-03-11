@@ -15,11 +15,12 @@ Create a migration to add a `deleted_at` column for all trashable models:
     add_column :post, :deleted_at, :timestamp
     add_column :comments, :deleted_at, :timestamp
 
-Add the `has_trash` module and add a `default scope` to each trashable model:
+Add the `has_trash` module, a `default scope`, and `attr_accessible` to each trashable model:
 
     class Post < ActiveRecord::Base
       has_trash
       default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
+      attr_accessible :deleted_at
     end
 
 ## Usage

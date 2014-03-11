@@ -2,7 +2,6 @@ module Rails
   module Trash
 
     def self.included(base)
-      base.attr_accessible :deleted_at
       base.extend ClassMethods
     end
 
@@ -60,8 +59,8 @@ module Rails
         end
 
         def disable_trash_for_associations
-          dependent_destroy_associations.each do |reflection|
-            self.send(reflection.name).each do |association|
+          (dependent_destroy_associations(:has_many) + dependent_destroy_associations(:has_one)).each do |reflection|
+            [self.send(reflection.name)].flatten.each do |association|
               association.disable_trash
             end
           end
@@ -73,8 +72,8 @@ module Rails
         end
 
         def enable_trash_for_associations
-          dependent_destroy_associations.each do |reflection|
-            self.send(reflection.name).each do |association|
+          (dependent_destroy_associations(:has_many) + dependent_destroy_associations(:has_one)).each do |reflection|
+            [self.send(reflection.name)].flatten.each do |association|
               association.enable_trash
             end
           end
@@ -83,19 +82,10 @@ module Rails
         private
 
         def trash_associations
-          dependent_destroy_associations.each do |reflection|
-            self.send(reflection.name).each do |association|
-              # puts association.inspect
-              association.destroy
-            end
-          end
-        end
-
-        def restore_associations
-          dependent_destroy_associations.each do |reflection|
+          (dependent_destroy_associations(:has_many) + dependent_destroy_associations(:has_one)).each do |reflection|
             begin
-              self.send(reflection.name).deleted.each do |association|
-                association.restore if association.trashed?
+              [self.send(reflection.name)].flatten.each do |association|
+                association.destroy
               end
             rescue
               # There are no associations to delete
@@ -103,8 +93,20 @@ module Rails
           end
         end
 
-        def dependent_destroy_associations
-          self.class.reflect_on_all_associations(:has_many).select do |reflection|
+        def restore_associations
+          (dependent_destroy_associations(:has_many) + dependent_destroy_associations(:has_one)).each do |reflection|
+            begin
+              [self.send(reflection.name).deleted].flatten.each do |association|
+                association.restore if association.trashed?
+              end
+            rescue
+              # There are no associations to restore
+            end
+          end
+        end
+
+        def dependent_destroy_associations(type)
+          self.class.reflect_on_all_associations(type).select do |reflection|
             reflection.options[:dependent] == :destroy
           end
         end

@@ -30,6 +30,12 @@ def setup_db
         t.integer :site_id
       end
 
+      create_table :authors do |t|
+        t.string :title
+        t.datetime :deleted_at
+        t.integer :entry_id
+      end
+
       create_table :comments do |t|
         t.string :email
         t.text :body
@@ -60,6 +66,14 @@ class Entry < ActiveRecord::Base
 
   belongs_to :site
   has_many :comments, :dependent => :destroy
+  has_one :author, :dependent => :destroy
+end
+
+class Author < ActiveRecord::Base
+  has_trash
+  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
+
+  belongs_to :entry
 end
 
 class Comment < ActiveRecord::Base
@@ -82,6 +96,11 @@ FactoryGirl.define do
     association :site
   end
 
+  factory :author do
+    sequence(:title) { |n| "Author##{n}" }
+    association :entry
+  end
+
   factory :comment do
     sequence(:email) { |n| "email+#{n}@example.com" }
     association :entry
@@ -97,6 +116,7 @@ class Rails::TrashTest < Test::Unit::TestCase
   def setup
     setup_db
     @entry = FactoryGirl.create(:entry)
+    @author = FactoryGirl.create(:author, :entry => @entry)
     @comment = FactoryGirl.create(:comment, :entry => @entry)
   end
 
@@ -110,59 +130,66 @@ class Rails::TrashTest < Test::Unit::TestCase
 
   def test_deleted
     @entry.destroy
-    assert Entry.count.eql?(0), "Expected 0 found #{Entry.count}."
-    assert Entry.deleted.count.eql?(1), "Expected 1 found #{Entry.count}."
+    assert Entry.count.eql?(0), "Expected 0 entries found #{Entry.count}."
+    assert Entry.deleted.count.eql?(1), "Expected 1 entry found #{Entry.count}."
   end
 
   def test_deleted_associations
     @entry.destroy
-    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
-    assert Comment.deleted.count.eql?(1), "Expected 1 found #{Comment.count}."
+    assert Comment.count.eql?(0), "Expected 0 comments found #{Comment.count}."
+    assert Comment.deleted.count.eql?(1), "Expected 1 comment found #{Comment.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
+    assert Author.deleted.count.eql?(1), "Expected 1 author found #{Author.count}."
   end
 
   def test_restore
     @entry.destroy
     Entry.deleted.first.restore
-    assert Entry.deleted.count.eql?(0)
-    assert Entry.count.eql?(1)
+    assert Entry.deleted.count.eql?(0), "Expected 0 entries found #{Entry.count}"
+    assert Entry.count.eql?(1), "Expected 1 entry found #{Entry.count}"
   end
 
   def test_restore_associations
     @entry.destroy
     Entry.deleted.first.restore
-    assert Comment.count.eql?(1), "Expected 1 found #{Comment.count}."
-    assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.count.eql?(1), "Expected 1 comment found #{Comment.count}."
+    assert Comment.deleted.count.eql?(0), "Expected 0 comments found #{Comment.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
+    assert Author.deleted.count.eql?(1), "Expected 1 author found #{Author.count}."
   end
 
   def test_restore_without_associations
     @entry2 = FactoryGirl.create(:entry)
     @entry2.destroy
     Entry.deleted.first.restore
-    assert @entry2.comments.count.eql?(0), "Expected 0 found #{@entry2.comments.count}."
+    assert @entry2.comments.count.eql?(0), "Expected 0 found comments #{@entry2.comments.count}."
+    assert @entry2.author.eql?(nil), "Expected nil author found #{@entry2.author}."
   end
 
   def test_restore_class_method
     @entry.destroy
     Entry.restore(@entry.id)
-    assert Entry.deleted.count.eql?(0)
-    assert Entry.count.eql?(1)
+    assert Entry.deleted.count.eql?(0), "Expected 0 entries found #{Entry.count}"
+    assert Entry.count.eql?(1), "Expected 1 entry found #{Entry.count}"
   end
 
   def test_find_in_trash
     @entry.destroy
     entry = Entry.find_in_trash(@entry.id)
-    assert_equal entry.id, @entry.id
+    assert_equal entry.id, @entry.id, "Expected entry #{entry.id} found #{@entry.id}"
   end
 
   def test_destroy_in_cascade_still_works
-    assert Comment.count.eql?(1)
+    assert Comment.count.eql?(1), "Expected 1 comment found #{Comment.count}."
+    assert Author.count.eql?(1), "Expected 1 author found #{Author.count}."
     @entry.destroy
-    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
+    assert Comment.count.eql?(0), "Expected 0 comments found #{Comment.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
   end
 
   def test_trashed
     @entry.destroy
-    assert @entry.trashed?
+    assert @entry.trashed? == true, "Expected true found #{@entry.trashed?}"
   end
 
   def test_disable_trash
@@ -177,8 +204,10 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_disable_trash_associations
     @entry.disable_trash
     @entry.destroy
-    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
-    assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.deleted.count}."
+    assert Comment.count.eql?(0), "Expected 0 comments found #{Comment.count}."
+    assert Comment.deleted.count.eql?(0), "Expected 0 comments found #{Comment.deleted.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Comment.count}."
+    assert Author.deleted.count.eql?(0), "Expected 0 authors found #{Comment.deleted.count}."
   end
 
   def test_enable_trash
@@ -193,8 +222,10 @@ class Rails::TrashTest < Test::Unit::TestCase
     @entry.disable_trash
     @entry.enable_trash
     @entry.destroy
-    assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
-    assert Comment.deleted.count.eql?(1), "Expected 1 found #{Comment.deleted.count}."
+    assert Comment.count.eql?(0), "Expected 0 comments found #{Comment.count}."
+    assert Comment.deleted.count.eql?(1), "Expected 1 comment found #{Comment.deleted.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
+    assert Author.deleted.count.eql?(1), "Expected 1 author found #{Author.deleted.count}."
   end
 
   def test_delete_associations
@@ -202,5 +233,7 @@ class Rails::TrashTest < Test::Unit::TestCase
     @entry.destroy
     assert Comment.count.eql?(0), "Expected 0 found #{Comment.count}."
     assert Comment.deleted.count.eql?(0), "Expected 0 found #{Comment.deleted.count}."
+    assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
+    assert Author.deleted.count.eql?(0), "Expected 0 authors found #{Author.deleted.count}."
   end
 end
