@@ -38,14 +38,16 @@ module Rails
       module InstanceMethodsMixin
 
         def destroy
-          unless @trash_disabled
-            self.update_attribute(:deleted_at, Time.now.utc) if self.deleted_at.nil?
-            trash_associations
-          else
-            super
-          end
+          run_callbacks :destroy do
+            unless @trash_disabled
+              self.update_attribute(:deleted_at, Time.now.utc) if self.deleted_at.nil?
+              trash_associations
+            else
+              super
+            end
 
-          self
+            self
+          end
         end
 
         def restore

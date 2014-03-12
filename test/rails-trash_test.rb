@@ -57,15 +57,31 @@ class Entry < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_one :author, :dependent => :destroy
 
-  before_restore :run_before
-  after_restore :run_after
-  attr_accessor :before, :after
-  def run_before
-    @before = true
+  # Restore Callbacks
+  before_restore :run_before_restore
+  after_restore :run_after_restore
+
+  attr_accessor :before_restore, :after_restore
+  
+  def run_before_restore
+    @before_restore = true
   end
 
-  def run_after
-    @after = true
+  def run_after_restore
+    @after_restore = true
+  end
+
+  # Destroy Callbacks
+  before_destroy :run_before_destroy
+  after_destroy :run_after_destroy
+
+  attr_accessor :before_destroy, :after_destroy
+  def run_before_destroy
+    @before_destroy = true
+  end
+
+  def run_after_destroy
+    @after_destroy = true
   end
 end
 
@@ -237,11 +253,17 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Author.deleted.count.eql?(0), "Expected 0 authors found #{Author.deleted.count}."
   end
 
-  def test_callbacks
+  def test_restore_callbacks
     @entry.destroy
     @entry.restore
-    assert @entry.before == true, "Expected before_restore to run"
-    assert @entry.after == true, "Expected after_restore to run"
+    assert @entry.before_restore == true, "Expected before_restore to run"
+    assert @entry.after_restore == true, "Expected after_restore to run"
+  end
+
+  def test_destroy_callbacks
+    @entry.destroy
+    assert @entry.before_destroy == true, "Expected before_destroy to run"
+    assert @entry.after_destroy == true, "Expected after_destroy to run"
   end
 
 end
