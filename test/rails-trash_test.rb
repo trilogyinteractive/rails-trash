@@ -1,14 +1,3 @@
-module Rails
-  module VERSION
-    MAJOR = 3
-    MINOR = 1
-    TINY  = 0
-    PRE   = "rc1"
-
-    STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
-  end
-end
-
 require 'test/unit'
 require 'rubygems'
 require 'active_record'
@@ -67,6 +56,17 @@ class Entry < ActiveRecord::Base
   belongs_to :site
   has_many :comments, :dependent => :destroy
   has_one :author, :dependent => :destroy
+
+  before_restore :run_before
+  after_restore :run_after
+  attr_accessor :before, :after
+  def run_before
+    @before = true
+  end
+
+  def run_after
+    @after = true
+  end
 end
 
 class Author < ActiveRecord::Base
@@ -236,4 +236,12 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Author.count.eql?(0), "Expected 0 authors found #{Author.count}."
     assert Author.deleted.count.eql?(0), "Expected 0 authors found #{Author.deleted.count}."
   end
+
+  def test_callbacks
+    @entry.destroy
+    @entry.restore
+    assert @entry.before == true, "Expected before_restore to run"
+    assert @entry.after == true, "Expected after_restore to run"
+  end
+
 end

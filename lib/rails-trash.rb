@@ -9,6 +9,8 @@ module Rails
       
       def has_trash
         attr_accessor :trash_disabled
+        define_model_callbacks :restore, :only => [:before, :after]
+
         extend ClassMethodsMixin
         include InstanceMethodsMixin
       end
@@ -47,9 +49,11 @@ module Rails
         end
 
         def restore
-          self.update_attribute(:deleted_at, nil) unless self.deleted_at.nil?
-          restore_associations
-          self
+          run_callbacks :restore do
+            self.update_attribute(:deleted_at, nil) unless self.deleted_at.nil?
+            restore_associations
+            self
+          end
         end
 
         def trashed?

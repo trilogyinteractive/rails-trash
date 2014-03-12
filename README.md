@@ -84,6 +84,17 @@ Calling #destroy on any post will trash that post's comments. Likewise, calling 
 
 Similarly, calling #disable_trash on any post will disable the trash for that post's comments. And calling #enable_trash on any post will enable the trash for that post's comments.
 
+## Callbacks
+
+Two new callbacks are defined: `before_restore` and `after_restore`.
+
+    class Post < ActiveRecord::Base
+      has_trash
+
+      before_restore { |record| puts "About to restore Post #{record.id}." }
+      after_restore { |record| puts "Post #{record.id} was restored." }
+    end
+
 ## Tests
 
 Run tests with:
