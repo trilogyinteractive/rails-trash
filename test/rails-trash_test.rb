@@ -150,6 +150,12 @@ class Rails::TrashTest < Test::Unit::TestCase
     assert Entry.deleted.count.eql?(1), "Expected 1 entry found #{Entry.count}."
   end
 
+  def test_delete_multiple
+    @entry2 = FactoryGirl.create(:entry)
+    Entry.destroy([@entry.id, @entry2.id])
+    assert Entry.deleted.count.eql?(2), "Expected 2 entries found #{Entry.deleted.count}."
+  end
+
   def test_deleted_associations
     @entry.destroy
     assert Comment.count.eql?(0), "Expected 0 comments found #{Comment.count}."
