@@ -1,4 +1,5 @@
-require 'test/unit'
+require 'rails'
+require 'minitest/autorun'
 require 'rubygems'
 require 'active_record'
 require 'rails-trash'
@@ -51,7 +52,6 @@ end
 
 class Entry < ActiveRecord::Base
   has_trash
-  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
 
   belongs_to :site
   has_many :comments, :dependent => :destroy
@@ -87,14 +87,12 @@ end
 
 class Author < ActiveRecord::Base
   has_trash
-  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
 
   belongs_to :entry
 end
 
 class Comment < ActiveRecord::Base
   has_trash
-  default_scope where(arel_table[:deleted_at].eq(nil)) if arel_table[:deleted_at]
   belongs_to :entry
 end
 
@@ -127,7 +125,7 @@ end
 # And finally the test itself.
 #
 
-class Rails::TrashTest < Test::Unit::TestCase
+class Rails::TrashTest < Minitest::Test
 
   def setup
     setup_db
@@ -198,6 +196,12 @@ class Rails::TrashTest < Test::Unit::TestCase
   def test_find_in_trash
     @entry.destroy
     entry = Entry.find_in_trash(@entry.id)
+    assert_equal entry.id, @entry.id, "Expected entry #{entry.id} found #{@entry.id}"
+  end
+
+  def test_find_or_in_trash
+    @entry.destroy
+    entry = Entry.find_or_in_trash(@entry.id)
     assert_equal entry.id, @entry.id, "Expected entry #{entry.id} found #{@entry.id}"
   end
 

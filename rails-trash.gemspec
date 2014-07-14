@@ -6,10 +6,11 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/fesplugas/rails-trash'
   s.summary = 'Trash'
 
-  s.add_dependency('rails', '>= 3.2.0')
+  s.add_dependency('rails')
 
-  s.add_development_dependency("factory_girl", "~> 4.2.0")
-  s.add_development_dependency("sqlite3", "~> 1.3.7")
+  s.add_development_dependency("minitest")
+  s.add_development_dependency("factory_girl")
+  s.add_development_dependency("sqlite3")
 
   s.files = Dir['lib/**/*']
   s.require_path = 'lib'
