@@ -199,9 +199,9 @@ class Rails::TrashTest < Minitest::Test
     assert_equal entry.id, @entry.id, "Expected entry #{entry.id} found #{@entry.id}"
   end
 
-  def test_find_or_in_trash
+  def test_find_perhaps_in_the_trash
     @entry.destroy
-    entry = Entry.find_or_in_trash(@entry.id)
+    entry = Entry.find_perhaps_in_the_trash(@entry.id)
     assert_equal entry.id, @entry.id, "Expected entry #{entry.id} found #{@entry.id}"
   end
 

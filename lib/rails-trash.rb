@@ -26,7 +26,7 @@ module Rails
           deleted.find(id)
         end
 
-        def find_or_in_trash(id)
+        def find_perhaps_in_the_trash(id)
           unscoped.find(id)
         end
 
