@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'rails-trash'
   s.version = '3.2.0'
-  s.author = 'Francesc Esplugas'
-  s.email = 'contact@francescesplugas.com'
-  s.homepage = 'https://github.com/fesplugas/rails-trash'
+  s.author = 'Jarred Trost'
+  s.email = 'jtrost@trilogyinteractive.com'
+  s.homepage = 'https://github.com/trilogyinteractive/rails-trash'
   s.summary = 'Trash'
 
   s.add_dependency('rails')

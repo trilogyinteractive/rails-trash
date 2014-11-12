@@ -9,12 +9,12 @@ module Rails
       
       def has_trash
         attr_accessor :trash_disabled
-        define_model_callbacks :restore, :only => [:before, :after]
+        define_model_callbacks :restore, only: [:before, :after]
 
 
         default_scope { where(deleted_at: nil) }
         scope :deleted, -> { unscoped.where("`deleted_at` IS NOT NULL") }
-        scope :active, -> { where(:deleted_at => nil) }
+        scope :active, -> { where(deleted_at: nil) }
 
         extend ClassMethodsMixin
         include InstanceMethodsMixin
@@ -26,7 +26,7 @@ module Rails
           deleted.find(id)
         end
 
-        def find_perhaps_in_the_trash(id)
+        def find_or_in_trash(id)
           unscoped.find(id)
         end
 
